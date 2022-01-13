@@ -1,0 +1,43 @@
+//
+//  QRCoderTests.swift
+//
+//
+//  © Copyright IBM Deutschland GmbH 2021
+//  SPDX-License-Identifier: Apache-2.0
+//
+
+import Foundation
+import XCTest
+
+@testable import CovPassCommon
+
+class QRCoderTests: XCTestCase {
+    func testErrorCode() {
+        XCTAssertEqual(QRCodeError.qrCodeExists.errorCode, 201)
+        XCTAssertEqual(QRCodeError.versionNotSupported.errorCode, 202)
+    }
+
+    func testParseValidCertificate() throws {
+        let res = try QRCoder.parse(CertificateMock.validCertificate).wait()
+        _ = try res.toJSON()
+    }
+
+    func testParseValidCertificateRSA() throws {
+        let res = try QRCoder.parse(CertificateMock.validCertifcateRSA).wait()
+        _ = try res.toJSON()
+    }
+
+    func testParseValidCertificateWithNoPrefix() throws {
+        let res = try QRCoder.parse(CertificateMock.validCertificateNoPrefix).wait()
+        _ = try res.toJSON()
+    }
+
+    func testParseInvalidCertificate() {
+        do {
+            _ = try QRCoder.parse(CertificateMock.invalidCertificate).wait()
+            XCTFail("Parse should fail")
+        } catch {
+            XCTAssertEqual(error.localizedDescription, CoseParsingError.wrongType.localizedDescription)
+        }
+    }
+}
